@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Obsidian Gallery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "on-secondary-fixed-variant": "#5c5b5b",
+          "outline-variant": "#484848",
+          "secondary-container": "#3c3b3b",
+          "inverse-primary": "#5e5f60",
+          "error-container": "#7f2927",
+          "surface-tint": "#c6c6c7",
+          "on-primary-fixed-variant": "#5a5c5c",
+          "secondary": "#9f9d9d",
+          "surface-container-lowest": "#000000",
+          "error": "#ee7d77",
+          "on-primary-fixed": "#3e4040",
+          "secondary-fixed-dim": "#d6d4d3",
+          "surface": "#0e0e0e",
+          "outline": "#767575",
+          "surface-bright": "#2c2c2c",
+          "surface-container": "#1a1919",
+          "tertiary-dim": "#edeaea",
+          "primary-container": "#454747",
+          "on-background": "#e7e5e4",
+          "surface-variant": "#262626",
+          "tertiary-container": "#edeaea",
+          "inverse-on-surface": "#565554",
+          "surface-dim": "#0e0e0e",
+          "on-surface": "#e7e5e4",
+          "on-secondary-container": "#c1bfbe",
+          "tertiary": "#fbf9f8",
+          "on-tertiary-fixed": "#4a4949",
+          "on-primary": "#3f4041",
+          "tertiary-fixed": "#f5f3f3",
+          "on-error-container": "#ff9993",
+          "background": "#0e0e0e",
+          "surface-container-low": "#131313",
+          "error-dim": "#bb5551",
+          "primary-fixed": "#e2e2e2",
+          "on-secondary": "#202020",
+          "on-secondary-fixed": "#3f3f3f",
+          "on-surface-variant": "#acabaa",
+          "secondary-fixed": "#e4e2e1",
+          "primary-dim": "#b8b9b9",
+          "surface-container-highest": "#262626",
+          "on-error": "#490106",
+          "on-tertiary-container": "#575757",
+          "on-tertiary-fixed-variant": "#666666",
+          "surface-container-high": "#202020",
+          "primary": "#c6c6c7",
+          "inverse-surface": "#fcf8f8",
+          "primary-fixed-dim": "#d4d4d4",
+          "secondary-dim": "#9f9d9d",
+          "tertiary-fixed-dim": "#e7e5e4",
+          "on-tertiary": "#5f5f5f",
+          "on-primary-container": "#d0d0d0"
+        },
+        borderRadius: {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        fontFamily: {
+          "headline": ["Manrope"],
+          "body": ["Newsreader"],
+          "label": ["Manrope"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  body { background-color: #050505; color: #e7e5e4; }
+
+  /* Page transitions */
+  .page { display: none; opacity: 0; transition: opacity 0.4s ease; }
+  .page.active { display: block; opacity: 1; }
+
+  /* Cursor */
+  .cursor-crosshair { cursor: crosshair; }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #050505; }
+  ::-webkit-scrollbar-thumb { background: #484848; border-radius: 2px; }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.35;
+  }
+
+  /* Nav link active */
+  .nav-link { position: relative; }
+  .nav-link.active {
+    color: #c6c6c7 !important;
+    opacity: 1 !important;
+    border-bottom: 1px solid #c6c6c7;
+    padding-bottom: 2px;
+  }
+
+  /* Floating label inputs */
+  .field-group { position: relative; }
+  .field-group input, .field-group textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #484848;
+    padding: 12px 0;
+    outline: none;
+    font-family: 'Newsreader', serif;
+    font-size: 1.125rem;
+    color: #e7e5e4;
+    transition: border-color 0.3s;
+    resize: none;
+  }
+  .field-group input:focus, .field-group textarea:focus { border-color: #c6c6c7; }
+  .field-group label {
+    position: absolute;
+    left: 0; top: 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #9f9d9d;
+    transition: all 0.25s;
+    pointer-events: none;
+  }
+  .field-group input:focus ~ label,
+  .field-group input:not(:placeholder-shown) ~ label,
+  .field-group textarea:focus ~ label,
+  .field-group textarea:not(:placeholder-shown) ~ label {
+    top: -14px;
+    font-size: 0.65rem;
+    color: #c6c6c7;
+  }
+
+  /* Hero bounce */
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) translateX(-50%); }
+    50% { transform: translateY(-10px) translateX(-50%); }
+  }
+  .bounce { animation: bounce 2s ease-in-out infinite; }
+
+  /* Filter active button */
+  .filter-btn.active {
+    color: #c6c6c7;
+    border-bottom: 1px solid #c6c6c7;
+  }
+</style>
+</head>
+<body class="font-body selection:bg-primary selection:text-on-primary">
+
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 md:px-12 py-6 bg-[#050505]/70 backdrop-blur-xl">
+  <div class="text-xl font-bold tracking-tighter text-[#c6c6c7] font-headline cursor-pointer" onclick="showPage('home')">
+    Obsidian Gallery
+  </div>
+  <div class="hidden md:flex items-center space-x-12">
+    <a href="#" class="nav-link font-label text-[10px] uppercase tracking-widest text-[#e7e5e4] opacity-60 hover:opacity-100 transition-opacity duration-300" data-page="work" onclick="showPage('work'); return false;">Work</a>
+    <a href="#" class="nav-link font-label text-[10px] uppercase tracking-widest text-[#e7e5e4] opacity-60 hover:opacity-100 transition-opacity duration-300" data-page="about" onclick="showPage('about'); return false;">About</a>
+    <a href="#" class="nav-link font-label text-[10px] uppercase tracking-widest text-[#e7e5e4] opacity-60 hover:opacity-100 transition-opacity duration-300" data-page="about" onclick="showPage('about'); return false;">Contact</a>
+  </div>
+  <button class="bg-gradient-to-br from-[#c6c6c7] to-[#454747] text-on-primary px-6 py-2 rounded-lg font-label font-bold text-xs uppercase tracking-wider hover:opacity-90 hover:scale-105 active:scale-95 transition-all duration-300">
+    Hire Me
+  </button>
+</nav>
+
+<!-- ═══════════════════ PAGE: HOME ═══════════════════ -->
+<div id="page-home" class="page active">
+  <main>
+    <!-- Hero -->
+    <section class="relative h-screen w-full flex items-center justify-center overflow-hidden bg-surface-container-lowest">
+      <div class="absolute inset-0 z-0">
+        <img class="w-full h-full object-cover opacity-50 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDC_GTyz6SXz0YAkDHBbkR63pmpBzmzdjRTF4TazK9bI9aPJdn08aYiChoN72_ijnS1qr4pftXbavdo4sVU3fx_J59G8cb-6f2tJy-8tEGFR4X8TNwuSfU8MTH2MLK0Q2SAxLFoYzw5rU-zTTFfEODIgyV3qegskPaH5ljrkYLytblQuCFtra8i60bfJ9Kh5nSxRP8q3l_RK51JgFfoL_ghgQIrWxWVxn1UW3wtw2L3-adY8LtTKT13J-lmipxMpOAdJKEmzxUvxw" alt="Cinematic hero"/>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
+      </div>
+      <div class="relative z-10 text-center px-4 max-w-5xl">
+        <h1 class="font-headline font-extrabold text-5xl md:text-8xl tracking-tighter leading-none mb-8 text-white">
+          Digital Visionary.
+        </h1>
+        <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12">
+          <span class="font-label text-xs uppercase tracking-[0.3em] text-primary">Photography</span>
+          <div class="hidden md:block h-px w-8 bg-outline-variant/30"></div>
+          <span class="font-label text-xs uppercase tracking-[0.3em] text-primary">Cinematography</span>
+        </div>
+      </div>
+      <div class="bounce absolute bottom-12 left-1/2 opacity-40 cursor-pointer" onclick="document.getElementById('featured').scrollIntoView({behavior:'smooth'})">
+        <span class="material-symbols-outlined text-white">keyboard_double_arrow_down</span>
+      </div>
+    </section>
+
+    <!-- Featured Projects -->
+    <section id="featured" class="py-32 px-6 md:px-12 bg-surface">
+      <div class="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <p class="font-label text-[10px] uppercase tracking-[0.2em] text-primary mb-4">Selected Works</p>
+          <h2 class="font-headline font-bold text-4xl tracking-tight text-on-surface">The Curator's Reel</h2>
+        </div>
+        <p class="font-body text-lg text-on-surface-variant max-w-sm leading-relaxed">
+          A collection of visual narratives exploring the intersection of light, shadow, and architectural silence.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-y-32 gap-x-12">
+        <div class="group flex flex-col cursor-crosshair" onclick="showPage('detail')">
+          <div class="aspect-[4/5] overflow-hidden rounded-lg bg-surface-container-low transition-transform duration-700 hover:scale-[1.02]">
+            <img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRDHQqwcWJq1mStklme_7A91mLLI1rrkgNZJWSjcfN1V5Ur-zZb_wQxLyKmZWSqvdo4m_IEAH593Y1TXbiMrI7JAdFXOiluA6wnWc6kYaTmHl5FfRhjbddMvtP-vgmf_xix4h-ehpdQ8rkFDWPf3SDQcmWOsL_G0VfOKpdpdnzAJ_pQGDkU4zowU4NI53T89DGv5MZwCfmuyl7m_M3N4mgBZ01J9BXptiu5VhOTiMhPafKAivngD07P86up5cwjI2bOqNGivzUtQ" alt="Aeon Void"/>
+          </div>
+          <div class="mt-8 flex justify-between items-start">
+            <div>
+              <h3 class="font-headline font-bold text-xl mb-1 group-hover:text-primary transition-colors">Aeon Void</h3>
+              <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Architectural Photography</p>
+            </div>
+            <span class="font-label text-[10px] text-outline-variant">2024</span>
+          </div>
+        </div>
+        <div class="group flex flex-col md:mt-48 cursor-crosshair" onclick="showPage('detail')">
+          <div class="aspect-square overflow-hidden rounded-lg bg-surface-container-low transition-transform duration-700 hover:scale-[1.02]">
+            <img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIfEKy0IYVpfaoQvAwlLKhEs2xDSUuT8ZZj_NrZilLf4ioHUhp0qwSJk0KZ0qJupCEUZr2SrpJbGuOL3ElWNeMUW8G4kIKewiUBaogcOBUG4XgyMCeNvaAweUZP4momU9rVnHYMrXOricTqSe8_kn2YfQMXqadFo3zwMiLXhfQ3QPj5LrsO39tqbJVQmnoU7iTKeo-kdS8uEzCf1XVgOsW7Xwwt6n7McVmjtsVjI0uhDqHrlmkWb5YMoi6uTLPv8p7JIJk80H9tA" alt="Ephemeral Silence"/>
+          </div>
+          <div class="mt-8 flex justify-between items-start">
+            <div>
+              <h3 class="font-headline font-bold text-xl mb-1 group-hover:text-primary transition-colors">Ephemeral Silence</h3>
+              <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Cinematography</p>
+            </div>
+            <span class="font-label text-[10px] text-outline-variant">2023</span>
+          </div>
+        </div>
+        <div class="group md:col-span-2 flex flex-col max-w-4xl mx-auto w-full cursor-crosshair" onclick="showPage('detail')">
+          <div class="aspect-[16/9] overflow-hidden rounded-lg bg-surface-container-low transition-transform duration-700 hover:scale-[1.02]">
+            <img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmzjuVortecK1hrrbEAYAt6WQpPZSnRslnK2jEGJ-1GOzfoaJOP7LI-Em_PsKj9UbDdzw0yNaQgVU6YnlgrePE35ur7IuZySgj7tklmbiOwTgWosqyb69J9ySz30o4xbhFnIxlsXJaG62cx5fVf04GSQejiRdnxNiC7g2e5BQccbH__lrFdEqlYs7Aty1tuyt1tHXk6HrrQfYh10XeIEJdv8T9Umj384HLl7S0-AGVpXlby46ujGzsrElk_A1hXfffTy3yp8vwog" alt="Neon Desert"/>
+          </div>
+          <div class="mt-8 flex justify-between items-start">
+            <div>
+              <h3 class="font-headline font-bold text-2xl mb-1 group-hover:text-primary transition-colors">Neon Desert</h3>
+              <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Digital Art &amp; Vision</p>
+            </div>
+            <span class="font-label text-[10px] text-outline-variant">2024</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quote -->
+    <section class="py-48 px-6 md:px-12 bg-surface-container-low">
+      <div class="max-w-3xl mx-auto text-center">
+        <span class="material-symbols-outlined text-primary text-4xl mb-8 block">camera_front</span>
+        <blockquote class="font-body text-3xl md:text-5xl italic text-on-surface leading-tight mb-12">
+          "I believe that the role of the curator is to reveal the soul within the shadow, to find the melody in the silence."
+        </blockquote>
+        <p class="font-label text-xs uppercase tracking-[0.4em] text-on-surface-variant">Visionary Statement — 01</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="flex flex-col md:flex-row justify-between items-center w-full border-t border-[#484848]/15 bg-[#0e0e0e] py-24 px-12 gap-12">
+    <div class="flex flex-col items-center md:items-start gap-4">
+      <p class="font-body text-on-surface text-lg">Creating timeless digital artifacts.</p>
+      <p class="font-label text-[10px] text-[#e7e5e4] opacity-40 uppercase tracking-widest">© 2024 Obsidian Gallery. All rights reserved.</p>
+    </div>
+    <div class="flex items-center gap-12">
+      <a href="#" class="font-label text-[10px] uppercase tracking-widest text-[#e7e5e4] opacity-40 hover:text-white transition-colors">Instagram</a>
+      <a href="#" class="font-label text-[10px] uppercase tracking-widest text-[#e7e5e4] opacity-40 hover:text-white transition-colors">Vimeo</a>
+      <a href="#" class="font-label text-[10px] uppercase tracking-widest text-[#e7e5e4] opacity-40 hover:text-white transition-colors">LinkedIn</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════ PAGE: WORK ═══════════════════ -->
+<div id="page-work" class="page">
+  <main class="pt-32 pb-24 px-6 md:px-12 max-w-[1920px] mx-auto">
+    <!-- Filter Header -->
+    <header class="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8">
+      <div class="max-w-2xl">
+        <h1 class="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter text-primary mb-6">Selected Works.</h1>
+        <p class="font-body text-xl md:text-2xl text-on-surface-variant leading-relaxed italic">
+          A collection of visual narratives spanning cinematography, high-fashion photography, and strategic digital experiences.
+        </p>
+      </div>
+      <div class="flex gap-8 border-b border-outline-variant/15 pb-2">
+        <button class="filter-btn active font-label text-[10px] uppercase tracking-[0.2em] text-primary pb-2 transition-colors" onclick="filterWork(this, 'all')">All Projects</button>
+        <button class="filter-btn font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface pb-2 transition-colors" onclick="filterWork(this, 'Photography')">Photography</button>
+        <button class="filter-btn font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface pb-2 transition-colors" onclick="filterWork(this, 'Cinematography')">Cinematography</button>
+        <button class="filter-btn font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface pb-2 transition-colors" onclick="filterWork(this, 'Digital Marketing')">Digital Marketing</button>
+      </div>
+    </header>
+
+    <!-- Gallery Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8" id="gallery-grid">
+      <!-- Large Feature -->
+      <div class="md:col-span-8 group cursor-crosshair gallery-item" data-category="Cinematography" onclick="showPage('detail')">
+        <div class="relative aspect-[16/10] overflow-hidden rounded-lg bg-surface-container-low">
+          <img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR8MQbzwqSvKlKQ3kCqi3lLY3B7pZ3WsTIQtXo2y3K-9itteB5V1aJUzy_WDzh-FKbYA7CLUrwneADxjXi2vjPlHe0iQdUbpcHqcg9O9ZxIw4AXLLZQZeAiSBuT-d_aBUj4Ydcej66qrxTWucqkFr4gwkYnhZVlDhz4T5WXbapV0yyB4eFLhsRg3QYytoiImCAr_YO8Fflu65ozGxj6v-VKWX686ip-3TjDyQ2lWwavz5OK3xRJ4RjKO6qusdD49Vqu_KZfMh5rQ" alt="The Silent Horizon"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+            <span class="font-label text-[10px] uppercase tracking-widest text-primary mb-2">Cinematography</span>
+            <h3 class="font-headline text-3xl font-bold tracking-tight text-on-surface">The Silent Horizon</h3>
+          </div>
+        </div>
+      </div>
+      <!-- Vertical -->
+      <div class="md:col-span-4 group cursor-crosshair gallery-item" data-category="Photography" onclick="showPage('detail')">
+        <div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-surface-container-low">
+          <img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1h3S6iLUJi5ElRI1JtADFcTsczxkaRLJTxwwPbLwa9jZTRtvzdSgdYU0Cj00ncrNZp6WII7mc_2whNbiOkNmB0AOx1ASeCf9Y4MRwzB0fjMPCulSLgtVlW8jYvtlzgxqNypbJdLUzb5G0bKQaNxtKVqToUR8Y6wMpsxQgxF3LUxqG2720SF2SqZ2XEXAG55mU5WB1NPEXcJR8YuoYTp8z9DWVfU3wUzBXBtasVICqeItmIcgknaVhpya0MZOi1gLvYUvdXpxIfw" alt="Noir Identity"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+            <span class="font-label text-[10px] uppercase tracking-widest text-primary mb-2">Photography</span>
+            <h3 class="font-headline text-2xl font-bold tracking-tight text-on-surface">Noir Identity</h3>
+          </div>
+        </div>
+      </div>
+      <!-- Small 3 -->
+      <div class="md:col-span-4 group cursor-crosshair gallery-item" data-category="Digital Marketing" onclick="showPage('detail')">
+        <div class="relative aspect-square overflow-hidden rounded-lg bg-surface-container-low">
+          <img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChEg1G-KGhaNaA6y3GSmJIi2P1HM90SUPbU3wQ3BU_J5SKgd_27GKKaQCrE2di3xCShS3o6z56ziO1xUXNhlPKxEdtijaJvKR2NZBKcAYLJ-fmZkyjKFg4a0e66LUzy5hsgQV5beD3s7eMksNdkVT9-OMaJooESU7w-Q-WRlfJyrVCiddKVrTWDUR_J9gAprT9k5cnxbdQg0w3SR13K0plKE2F6gsb0s5MCO2PG8L737IfE9KSdJGmgHwAjDelxrepXbwkmwpWxw" alt="Obsidian Core"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+            <span class="font-label text-[10px] uppercase tracking-widest text-primary mb-2">Digital Marketing</span>
+            <h3 class="font-headline text-2xl font-bold tracking-tight text-on-surface">Obsidian Core</h3>
+          </div>
+        </div>
+      </div>
+      <div class="md:col-span-4 group cursor-crosshair gallery-item" data-category="Photography" onclick="showPage('detail')">
+        <div class="relative aspect-square overflow-hidden rounded-lg bg-surface-container-low">
+          <img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIaLyLI4ZdpdGDHgBAKFooguyZjCjpwFQHT7UAiaUWxzz7kIDKiPs2eVpkDruMDRA8UvM1dtsjbBqrs7C4uO96LxLTbB922M0Cd1KgAL4j94G68l7R2jNg_uVJBjFRUip7FvmVW-Pu90glOvjQB-NXBpWqDYdI3mIfBmdcsKNpcMWBvWcrWF7g8brwcoRHWjM62zObGfe-zX1I5lw2Ogkv8QQSclqovD4fQFNLFQhNuPq55L--z5SiPb3XafCLu7RIfg-fZov0LA" alt="Primal Echoes"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+            <span class="font-label text-[10px] uppercase tracking-widest text-primary mb-2">Photography</span>
+            <h3 class="font-headline text-2xl font-bold tracking-tight text-on-surface">Primal Echoes</h3>
+          </div>
+        </div>
+      </div>
+      <div class="md:col-span-4 group cursor-crosshair gallery-item" data-category="Cinematography" onclick="showPage('detail')">
+        <div class="relative aspect-square overflow-hidden rounded-lg bg-surface-container-low">
+          <img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAab29Q6gya-soTs1hi0Yiw20IDcIbPnpqZcUkGbj_AfGFA85OkyWvBbjGm9j3rn-ukpS2MPJLB0wE3KJ-fIIVvOkMrfUQC4JbzWvNnQB6SqmW7p6Tk70I5zcNDmh93x-0nqNm-2Bv5j6bnRRyz9HhgoYDLv6DmCzRWhpm6Q_S5kEt6heymur7UbVmYW237ouDSTDKgkrx6YqMcHoT9PCN4loQbBbOr-C_XNljrjTu75j3dV_8SqsB3Y47nErHjzgCpkd70cDghmA" alt="Kinetic Night"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+            <span class="font-label text-[10px] uppercase tracking-widest text-primary mb-2">Cinematography</span>
+            <h3 class="font-headline text-2xl font-bold tracking-tight text-on-surface">Kinetic Night</h3>
+          </div>
+        </div>
+      </div>
+      <!-- Wide -->
+      <div class="md:col-span-12 group cursor-crosshair gallery-item" data-category="Digital Marketing" onclick="showPage('detail')">
+        <div class="relative aspect-[21/9] overflow-hidden rounded-lg bg-surface-container-low">
+          <img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxDwUr8g1mAtwOlhGPF80Ad7fbLZvlVsNouyq4JOMKwVmvW2l3LY9Snawb_db5HcZ0Yo_QyaJcZp1pRzUxUly-GbUzvKs7RcXaRQD6wUlhGMvvtZmGj_YEMKHKIERi7FCVA3gbrPUpATwT71WGy9BdKkhd1ecBQJXWweRIwB7qQYIQmPQfLx7JVOy8bkWPZOzzF2dIYCNCjkHid31iFahPS_S8jkuZ9AXkzKyBLukT0CoGV0x-Lqc-skTn2WFQBDNu-5-YlnzoXA" alt="Monolith Structure"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-12">
+            <span class="font-label text-[12px] uppercase tracking-widest text-primary mb-4">Digital Marketing</span>
+            <h3 class="font-headline text-5xl font-extrabold tracking-tight text-on-surface">Monolith Structure</h3>
+          </div>
+        </div>
+      </div>
+      <!-- Final Pair -->
+      <div class="md:col-span-6 group cursor-crosshair gallery-item" data-category="Photography" onclick="showPage('detail')">
+        <div class="relative aspect-[4/3] overflow-hidden rounded-lg bg-surface-container-low">
+          <img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC23Jux2X8oF4iwnZcWyjof67df33QDLCFiHcKPtFkbT7YI68YrbWyVQkRfzpJwio0oGG30c9dXI8PlIIdy6AvJ0Vw3EfV4fkdtj_I8iiiVMAQLhTU3oiXc6CVapHrwyPToYh7x0pVqi16PsrOlMKxy1VTxXeTczooWvOpiF0I1DKSmASj_Z12yW7Az_Hae6LEgTBsMTzQYB4Ol7ZQki1op00JywCffIcd0G_UkO_X0IavOeyuqCm8izx0HM-NNtXiL3NgUSTMOxg" alt="The Flow State"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+            <span class="font-label text-[10px] uppercase tracking-widest text-primary mb-2">Photography</span>
+            <h3 class="font-headline text-2xl font-bold tracking-tight text-on-surface">The Flow State</h3>
+          </div>
+        </div>
+      </div>
+      <div class="md:col-span-6 group cursor-crosshair gallery-item" data-category="Cinematography" onclick="showPage('detail')">
+        <div class="relative aspect-[4/3] overflow-hidden rounded-lg bg-surface-container-low">
+          <img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-7CttXO87GGpZLuoW1VW_NezPptPvcz5HyH5_zdeRHNdHHarpyotzPhED78V7T3rAQHKpc5ZRq9RrP7d4cWQ4tY9YGZ_JKHWmyBvzUJFE5UEax78j6VlNnVqUuUIvFavCz4NqaQMI7L9y27orrTpQdLfURLRSapuPG_e7KBKiFMuUFN0KrOGyFeSmpkx5Esu2xOC1EAZSEhOpG_XZtD5dSNnaBq1p5sQJu1Or_zxLqW3Nxb2WnwX3Og0CBt9pi7tGZMvS2Eabsg" alt="Summit Vision"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+            <span class="font-label text-[10px] uppercase tracking-widest text-primary mb-2">Cinematography</span>
+            <h3 class="font-headline text-2xl font-bold tracking-tight text-on-surface">Summit Vision</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <section class="mt-32 text-center max-w-3xl mx-auto">
+      <h2 class="font-headline text-4xl md:text-5xl font-bold tracking-tight text-on-surface mb-8">Have a vision in mind?</h2>
+      <p class="font-body text-xl text-on-surface-variant mb-12 italic">Let's craft something timeless. Currently accepting new projects for Q3 2024.</p>
+      <button onclick="showPage('about')" class="bg-primary text-on-primary px-12 py-5 rounded-lg font-label font-bold text-sm uppercase tracking-[0.2em] hover:scale-105 transition-transform duration-300">
+        Start a Conversation
+      </button>
+    </section>
+  </main>
+
+  <footer class="bg-[#0e0e0e] text-[#c6c6c7] w-full border-t border-[#484848]/15 flex flex-col md:flex-row justify-between items-center py-24 px-12 mt-24">
+    <div class="mb-12 md:mb-0">
+      <p class="font-body text-lg italic text-[#e7e5e4] opacity-80 max-w-xs text-center md:text-left mb-4">Capturing the unseen, curating the extraordinary.</p>
+      <p class="font-label text-[10px] tracking-widest uppercase opacity-40">© 2024 Obsidian Gallery. All rights reserved.</p>
+    </div>
+    <div class="flex gap-12">
+      <a href="#" class="font-label text-[11px] uppercase tracking-[0.2em] text-[#e7e5e4] opacity-40 hover:text-white hover:opacity-100 transition-all duration-300">Instagram</a>
+      <a href="#" class="font-label text-[11px] uppercase tracking-[0.2em] text-[#e7e5e4] opacity-40 hover:text-white hover:opacity-100 transition-all duration-300">Vimeo</a>
+      <a href="#" class="font-label text-[11px] uppercase tracking-[0.2em] text-[#e7e5e4] opacity-40 hover:text-white hover:opacity-100 transition-all duration-300">LinkedIn</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════ PAGE: PROJECT DETAIL ═══════════════════ -->
+<div id="page-detail" class="page">
+  <main class="pt-24">
+    <!-- Back -->
+    <div class="px-6 md:px-12 pt-8">
+      <button onclick="showPage('work')" class="flex items-center gap-2 font-label text-xs uppercase tracking-widest text-secondary hover:text-primary transition-colors">
+        <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Work
+      </button>
+    </div>
+
+    <!-- Hero -->
+    <section class="px-6 md:px-12 mb-24 mt-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+      <div class="md:col-span-8">
+        <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary mb-4 block">Cinematography / 2024</span>
+        <h1 class="font-headline text-6xl md:text-8xl font-extrabold tracking-tighter text-primary leading-tight mb-8">
+          Ethereal <br/>Silence
+        </h1>
+      </div>
+      <div class="md:col-span-4 pb-2">
+        <div class="space-y-6">
+          <p class="font-body text-xl text-on-surface leading-relaxed italic">
+            An exploration of quietude within the urban sprawl. This series captures the moments where the city exhales, revealing a ghostly stillness in usually chaotic corridors.
+          </p>
+          <div class="pt-4 border-t border-outline-variant/15">
+            <span class="font-label text-xs uppercase tracking-widest text-secondary block mb-1">Director of Photography</span>
+            <p class="font-headline font-bold text-primary">Julian Vane</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Showcase -->
+    <section class="space-y-12 mb-32">
+      <div class="w-full aspect-[21/9] overflow-hidden bg-surface-container-lowest">
+        <img alt="Main Stills" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmtiM7q6EQfEnM77Mc1iC_7Rd_Celx4DuJtkKUtNnlb8a4ageys7vzaGLQE93tBJ7Mrhe1hFphNY6RBpmltYujC2e_l5GKLuC-mdfMV35hE2mtqJHzW3PJe12jcF12R01fJBD8Ny6hy0Kfj_V8R4VSdfFkt8ekaSmm-AKvYEoKj_yqCUHKKogxNejeu5_BGut8ODy1ehWSBG6iqC-po_8p0dycftMFZ2AoakvxAueMx8QlbxqZwezf2VxxsHH8ZXpsvytenAsPFQ"/>
+      </div>
+      <div class="px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-12">
+        <div class="md:col-span-7 aspect-square bg-surface-container-lowest overflow-hidden">
+          <img alt="Detail Frame 1" class="w-full h-full object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA399egdVse60ZdNRs_bYQhPFs_VrzHy7BL-_xvARk2y8xTFX6j9toaRL5P9xfMZGLU8iGvUI3NPGjRALXN8p9RhLznlarE2w-E4mo36IOICiokLr2m7eQyzfsbDWAyHb7xzuMLlDh7-n5_4ZMgPNKQeX1sjjn9HAkhXh3PQ_NfPjQySuYK8qgmidl8zY1J4ULWBT4cPSRkrZEbw1TGYUUhKS3ehWKIXNGokHhLx3pLUmjbZsfdyJCdae5IoSYMPktOdYg-AiYJkA"/>
+        </div>
+        <div class="md:col-span-5 flex flex-col justify-between">
+          <div class="aspect-[4/5] bg-surface-container-lowest overflow-hidden">
+            <img alt="Detail Frame 2" class="w-full h-full object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW_kXFSzpPAt0UhvQ3ScOJMFwGddBuKe5SxRXL9MK-gJjslZIQWUM-piv2pXxLgkXaowEdwHGlNlrF9expsq_sKHmRt9a3a84YJkHv0mnIz3WXExdCGMO7BVfYkkOZITwg3orUj253L1e6T_MxLGQgEbrr_3p9Pkh77tPfj5Uh1tKPWFxAv9cxkAIMdcIOgEIIcO7s70MVrgpUSqZUE9hAo0W6jzlwfy4DalMkVSr1-mVuEUG165CdFgAAK25n__tfH_YwrRtW6g"/>
+          </div>
+          <div class="mt-8">
+            <p class="font-body text-lg text-on-surface-variant max-w-sm">
+              Technical approach: Shot primarily on anamorphic glass to emphasize the horizontal weight of the architecture.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="px-6 md:px-12">
+        <div class="w-full aspect-[16/6] bg-surface-container-lowest overflow-hidden">
+          <img alt="Final Frame" class="w-full h-full object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATHnB8Z22DbVVKOXqCWN9WbONDwowaun6PlFr_eF4uabAC7lPVwGoiFXuV0ysxcGC_07-t4bA2D3VoPvadGT_EumIncjNQMtFnauAPQb16PeTfV0YTrwXO32ztjBRBP0NFXV0ahfnqReosT13LSs0hNtnW9LMgMW_NR9Zxmc8uwxnjcQeIvV96qd6L7mTL0NvQs9ETvchcVfL4r32ZAokYdC5MGj9YxsUun5qiZZ1oMvL9W6Tiv6zCg0-qK2kcthbVK44Bz3KTdQ"/>
+        </div>
+      </div>
+    </section>
+
+    <!-- Specs -->
+    <section class="px-6 md:px-12 py-24 bg-surface-container-low">
+      <div class="max-w-4xl border-l-2 border-primary pl-12">
+        <h3 class="font-headline text-3xl font-bold text-primary mb-8 tracking-tight">Project Mechanics</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+          <div>
+            <span class="font-label text-xs uppercase tracking-widest text-secondary block mb-2">Camera</span>
+            <p class="font-headline font-bold">Arri Alexa Mini</p>
+          </div>
+          <div>
+            <span class="font-label text-xs uppercase tracking-widest text-secondary block mb-2">Lenses</span>
+            <p class="font-headline font-bold">Kowa Anamorphic</p>
+          </div>
+          <div>
+            <span class="font-label text-xs uppercase tracking-widest text-secondary block mb-2">Location</span>
+            <p class="font-headline font-bold">Berlin, DE</p>
+          </div>
+          <div>
+            <span class="font-label text-xs uppercase tracking-widest text-secondary block mb-2">Color</span>
+            <p class="font-headline font-bold">Obsidian Grade</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-[#0e0e0e] w-full border-t border-[#484848]/15 py-24 px-12 flex flex-col md:flex-row justify-between items-center">
+    <p class="font-label text-sm text-[#e7e5e4] opacity-40 mb-8 md:mb-0">© 2024 Obsidian Gallery. All rights reserved.</p>
+    <div class="flex items-center space-x-8">
+      <a href="#" class="font-label text-sm uppercase tracking-widest text-[#e7e5e4] opacity-40 hover:text-white transition-colors duration-300">Instagram</a>
+      <a href="#" class="font-label text-sm uppercase tracking-widest text-[#e7e5e4] opacity-40 hover:text-white transition-colors duration-300">Vimeo</a>
+      <a href="#" class="font-label text-sm uppercase tracking-widest text-[#e7e5e4] opacity-40 hover:text-white transition-colors duration-300">LinkedIn</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════ PAGE: ABOUT & CONTACT ═══════════════════ -->
+<div id="page-about" class="page">
+  <main class="pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto">
+    <!-- Hero Bio -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start mb-32">
+      <div class="lg:col-span-7 relative group">
+        <div class="aspect-[4/5] overflow-hidden rounded-lg bg-surface-container-low">
+          <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9dk9oJ6GlTledvvsQQjzPqElm2S0nXCG3pAfXw2RS2PiOS5ZTneeXbjsMLeDcXr4ct3lSTHqVvi579OJQdtbbHU1YJyerIYVa7DMgV4PSv_bXNGNon8XaDWpZBVoOOS90fdUN4T5GV0mEjgoz1MQXzxQbimnkNXd56gleY_aBi1r-jwKWVpBbjw1CGwRm4mqHbexBWY-ayZRdYwptniA2EYdIg-3Ikbjhik4wFYJeEOakWCz-V7kaNWQBjN7qi_7t3GydpBz_ng" alt="Portrait"/>
+        </div>
+        <div class="absolute -bottom-6 -right-6 hidden lg:block w-48 h-48 bg-surface-container p-6 rounded-lg">
+          <span class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary block mb-4">Focus</span>
+          <p class="font-body italic text-lg leading-tight">Articulating the invisible through light and motion.</p>
+        </div>
+      </div>
+      <div class="lg:col-span-5 pt-8">
+        <span class="font-label text-xs uppercase tracking-[0.3em] text-secondary mb-6 block">The Curator</span>
+        <h1 class="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter mb-8 leading-[0.9]">
+          Architect of <br/><span class="text-secondary-dim">Digital Spaces.</span>
+        </h1>
+        <div class="space-y-6">
+          <p class="font-body text-xl md:text-2xl leading-relaxed text-on-surface">
+            I specialize in the intersection of cinematic storytelling and brutalist digital design. My work is a study in desaturation, intentional asymmetry, and the power of light.
+          </p>
+          <p class="font-body text-lg text-on-surface-variant leading-relaxed">
+            With over a decade of experience curating visual experiences for global brands, I approach every project as an exhibition. My philosophy is simple: let the content speak, and let the interface recede into the shadows.
+          </p>
+        </div>
+        <div class="mt-12 flex gap-8 border-t border-outline-variant/15 pt-8">
+          <div>
+            <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-2">Based In</span>
+            <span class="font-headline font-bold text-sm">Berlin, DE</span>
+          </div>
+          <div>
+            <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-2">Selected Clients</span>
+            <span class="font-headline font-bold text-sm">Vogue, Leica, BMW</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 mb-32 bg-surface-container-low p-8 md:p-16 rounded-lg">
+      <div class="lg:col-span-4">
+        <h2 class="font-headline text-4xl font-bold tracking-tighter mb-4">Start a <br/>Dialogue.</h2>
+        <p class="font-body text-lg text-on-surface-variant mb-8">Available for select collaborations and creative direction worldwide.</p>
+        <div class="space-y-6">
+          <div class="flex items-center gap-4 group cursor-pointer">
+            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">mail</span>
+            <span class="font-label text-sm tracking-wide">hello@obsidiangallery.com</span>
+          </div>
+          <div class="flex items-center gap-4 group cursor-pointer">
+            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">call</span>
+            <span class="font-label text-sm tracking-wide">+49 (0) 176 0000 000</span>
+          </div>
+        </div>
+        <div class="mt-12 flex gap-4">
+          <a href="#" class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all duration-300">
+            <span class="material-symbols-outlined text-xl">share</span>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all duration-300">
+            <span class="material-symbols-outlined text-xl">videocam</span>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all duration-300">
+            <span class="material-symbols-outlined text-xl">groups</span>
+          </a>
+        </div>
+      </div>
+      <div class="lg:col-span-8">
+        <div class="space-y-10">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div class="field-group">
+              <input type="text" id="name" placeholder=" "/>
+              <label for="name">Name</label>
+            </div>
+            <div class="field-group">
+              <input type="email" id="email" placeholder=" "/>
+              <label for="email">Email</label>
+            </div>
+          </div>
+          <div class="field-group">
+            <textarea id="message" rows="4" placeholder=" "></textarea>
+            <label for="message">Message</label>
+          </div>
+          <div class="flex justify-end">
+            <button class="group flex items-center gap-3 font-label text-sm uppercase tracking-[0.2em] font-bold text-primary hover:text-white transition-colors">
+              Send Inquiry
+              <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Stills -->
+    <section class="mb-32">
+      <div class="flex justify-between items-end mb-12">
+        <h3 class="font-headline text-3xl font-bold tracking-tight">Gallery Stills</h3>
+        <span class="font-label text-xs uppercase tracking-widest text-secondary">A glimpse into the process</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="aspect-square relative overflow-hidden rounded-lg">
+          <img class="w-full h-full object-cover grayscale brightness-50 hover:brightness-100 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY2-ZKOwdWC3wnNCgS08gzUBpdFEOXAuEz-i3E39srLTANHdfCfNpCFIbCP5C88_A6G5weDX8evTg8OwvVYLWueibFyL4DuRONLGVl_YK583JDBDgIM9VfLI7a9DnELabHnfCKpsEFA6Brf8dyzFz8GBMX-RNWzsH7rDwI2rp2PqY0RVFKU1dSeUaNvwjlqMsp_0Xqc2cfZHR2kN1m6GI5Z1QoDqOyMZJm_X5MRUzzCB5zNN-ahKg8qHbTLRlZfOEoFtYDmAcgXg" alt="Still 1"/>
+        </div>
+        <div class="aspect-square relative overflow-hidden rounded-lg">
+          <img class="w-full h-full object-cover grayscale brightness-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBW29UhxvqQeSp7_0jrak9xM9zfApoL0nZ3a0SGbUiMQgT4c4_9fxrN_x9v7WvSX1MsBwxLMonDArsIF7vHXd7sXualrbemDCIw_zWI6GKHezECqlfNapSIIsiZblYcKkHOdm1tSNeZhyvA-fgX96hEQIARClTebt8rF7OKupsUw0GvQP5kWVyMT9ImhVxdUj4umMY0Uc5zPxgsTq1tKhRt1euvjjudKhru1hzL2yx4ftVZUDd2mmBGjYxL8Q6vNG5boDCPMNegg" alt="Still 2"/>
+          <div class="absolute inset-0 bg-primary/10 mix-blend-overlay"></div>
+        </div>
+        <div class="aspect-square relative overflow-hidden rounded-lg">
+          <img class="w-full h-full object-cover grayscale brightness-50 hover:brightness-100 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdoEzFQfempvwazOFg86pSkicSnNjZFgrJZerHP5zeLjJosDIgZivnmfEKBNeeqr1gDN33Jqk6b4dzeXpVL26AgQN6X4tcOtLSGY7hC5xcSgW3AsJtXCCMF3QRgE-bU8lRAJNa0emQnhweB6mOZXJgMI63IZDn3ZczPlGolOgU4AGPIuGs6hnGps5H_xZRsjOTkzODHz_tNmAlPJdy7oR37R6dpfETFVFbK5ZXurkNs0tamJ5SinmneIpKiV6D8o-NnSm0Iuz4Og" alt="Still 3"/>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-[#0e0e0e] border-t border-[#484848]/15 py-24 px-6 md:px-12 w-full flex flex-col md:flex-row justify-between items-center gap-12">
+    <div class="flex flex-col items-center md:items-start gap-4">
+      <span class="font-body italic text-[#c6c6c7] text-lg">Curating the extraordinary.</span>
+      <p class="font-label text-[10px] uppercase tracking-widest text-[#e7e5e4] opacity-40">© 2024 Obsidian Gallery. All rights reserved.</p>
+    </div>
+    <div class="flex items-center gap-12">
+      <a href="#" class="font-label text-xs uppercase tracking-widest text-[#e7e5e4] opacity-40 hover:text-white transition-colors duration-300">Instagram</a>
+      <a href="#" class="font-label text-xs uppercase tracking-widest text-[#e7e5e4] opacity-40 hover:text-white transition-colors duration-300">Vimeo</a>
+      <a href="#" class="font-label text-xs uppercase tracking-widest text-[#e7e5e4] opacity-40 hover:text-white transition-colors duration-300">LinkedIn</a>
+    </div>
+    <div class="flex items-center gap-2 text-[#c6c6c7]">
+      <span class="material-symbols-outlined text-sm">lock</span>
+      <span class="font-label text-[10px] uppercase tracking-widest">Encrypted Channel</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const pages = ['home', 'work', 'detail', 'about'];
+
+  function showPage(name) {
+    // Hide all
+    pages.forEach(p => {
+      const el = document.getElementById('page-' + p);
+      if (el) {
+        el.classList.remove('active');
+        el.style.opacity = '0';
+        setTimeout(() => { if (!el.classList.contains('active')) el.style.display = 'none'; }, 400);
+      }
+    });
+
+    // Show target
+    setTimeout(() => {
+      const target = document.getElementById('page-' + name);
+      if (target) {
+        target.style.display = 'block';
+        requestAnimationFrame(() => {
+          target.classList.add('active');
+          target.style.opacity = '1';
+        });
+      }
+    }, 50);
+
+    // Update nav links
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.remove('active');
+      if (link.dataset.page === name) link.classList.add('active');
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function filterWork(btn, category) {
+    // Update button styles
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('active');
+      b.style.color = '';
+    });
+    btn.classList.add('active');
+
+    // Filter items
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      if (category === 'all' || item.dataset.category === category) {
+        item.style.display = '';
+        item.style.opacity = '1';
+      } else {
+        item.style.opacity = '0.15';
+        item.style.pointerEvents = 'none';
+        // Reset after a moment
+        setTimeout(() => {
+          if (category !== 'all' && item.dataset.category !== category) {
+            item.style.display = '';
+          }
+        }, 300);
+      }
+    });
+  }
+
+  // Set initial nav state
+  document.querySelector('[data-page="work"]') && null;
+</script>
+</body>
+</html>
